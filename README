@@ -7,7 +7,12 @@ NAME
 
 DESCRIPTION
 
-   This module implements natural languages features in Perl.
+    This module implements natural languages features in Perl. Its brings the
+    following advantages:
+    - type verification
+    - features and values normalization
+    - smart comparisons between structures
+
 
 HOW DO I INSTALL IT?
 

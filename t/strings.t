@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: strings.t,v 1.1 2004/04/13 15:04:18 guillaume Exp $
+# $Id: strings.t,v 1.2 2004/05/03 12:46:49 guillaume Exp $
 
 use Lingua::Features;
 use Test::More;
@@ -13,9 +13,9 @@ plan tests => scalar @strings;
 
 foreach my $string (@strings) {
     chomp $string;
-    isa_ok(
-	Lingua::Features::Structure->from_string($string),
-	'Lingua::Features::Structure',
+    is(
+	Lingua::Features::Structure->from_string($string)->to_string(),
+	$string,
 	"$string parsing"
     );
 }

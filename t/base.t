@@ -1,32 +1,37 @@
 #!/usr/bin/perl
-# $Id: base.t,v 1.1 2004/04/13 15:04:08 guillaume Exp $
+# $Id: base.t,v 1.3 2004/05/03 12:46:27 guillaume Exp $
 
 use Lingua::Features;
-use Test::More tests => 5;
+use Test::More tests => 6;
 use strict;
 
+BEGIN {
+    use_ok 'Lingua::Features::FeatureType';
+    use_ok 'Lingua::Features::StructureType';
+}
+
 isa_ok(
-    Lingua::Features::Feature->new(),
-    'Lingua::Features::Feature',
-    'Feature instanciation'
+    Lingua::Features::FeatureType->type('noun'),
+    'Lingua::Features::FeatureType'
 );
+
 isa_ok(
-    Lingua::Features::Type->new(),
-    'Lingua::Features::Type',
-    'Type instanciation'
+    Lingua::Features::StructureType->type('noun'),
+    'Lingua::Features::StructureType'
 );
-isa_ok(
-    Lingua::Features::Value->new(),
-    'Lingua::Features::Value',
-    'Value instanciation'
+
+ok(
+    eq_array(
+	[ Lingua::Features::StructureType->type('noun')->features() ],
+	[ qw/type gender num sem/ ]
+    ),
+    'features list'
 );
-isa_ok(
-    Lingua::Features::Structure->new(),
-    'Lingua::Features::Structure',
-    'Structure instanciation'
-);
-isa_ok(
-    Lingua::Features::Tag->new(),
-    'Lingua::Features::Tag',
-    'Structure instanciation'
+
+ok(
+    eq_set(
+	[ Lingua::Features::FeatureType->type('noun')->values() ],
+	[ qw/ord proper dist common/ ]
+    ),
+    'values set'
 );

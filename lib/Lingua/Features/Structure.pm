@@ -1,4 +1,4 @@
-# $Id: Structure.pm,v 1.3 2004/04/13 15:03:26 guillaume Exp $
+# $Id: Structure.pm,v 1.13 2004/06/11 11:02:09 rousse Exp $
 package Lingua::Features::Structure;
 
 =head1 NAME
@@ -7,33 +7,60 @@ Lingua::Features::Structure - Structure object for Lingua::Features
 
 =cut
 
-use XML::Generator;
-use Lingua::Features::Tag;
 use Tie::IxHash;
+use XML::Generator;
+use List::Compare;
+use Lingua::Features::StructureType;
+use Lingua::Features::FeatureType;
+use Data::Dumper;
+use Carp;
 use strict;
+use warnings;
 
-my $tag_delimiter = ' ';
+my $feature_delimiter = ' ';
+my $id_delimiter      = '@';
+my $value_delimiter   = '|';
 
 =head1 Constructor
 
-=head2 new(I<%tags>)
+=head2 new(I<%features>)
 
 Creates and returns a new C<Lingua::Features::Structure> object.
 
 =cut
 
 sub new {
-    my ($class, %tags) = @_;
+    my ($class, %features) = @_;
+
+    croak "no category given" unless $features{cat};
+    $features{cat} = [ $features{cat} ] unless ref $features{cat} eq 'ARRAY';
+
+    my %type;
+    tie %type, 'Tie::IxHash';
+
+    my %seen;
+    my @cat = 
+	sort
+	grep { Lingua::Features::StructureType->type($_) } # allowed cat
+	grep { ! $seen{$_}++ }                             # unique
+	@{$features{cat}};
+    croak "no valid type given, aborting" unless @cat;
+    @cat = sort @cat;
+
+    foreach my $cat (@cat) {
+	my $type = Lingua::Features::StructureType->type($cat);
+	foreach my $feature ($type->features()) {
+	    $type{$feature} = $type->feature_type($feature);
+	}
+    }
 
     my $self = bless {
-	_tags => {}
+	_cat      => \@cat,
+	_type     => \%type,
+	_features => {}
     }, $class;
 
-    tie %{$self->{_tags}}, 'Tie::IxHash';
-
-    foreach my $name (keys %tags) {
-	$self->{_tags}->{$name} = Lingua::Features::Tag->new($name, @{$tags{$name}});
-    }
+    $self->set_features(%features) if %features;
 
     return $self;
 }
@@ -47,55 +74,125 @@ Creates and returns a new C<Lingua::Features::Structure> object from a string re
 sub from_string {
     my ($class, $string) = @_;
 
-    my $self = bless {
-	_tags => {}
-    }, $class;
-
-    tie %{$self->{_tags}}, 'Tie::IxHash';
-
-    foreach my $token (split(/$tag_delimiter/, $string)) {
-	my $tag = Lingua::Features::Tag->from_string($token);
-	$self->{_tags}->{$tag->id()} = $tag;
+    my %features;
+    foreach my $feature (split(/\Q$feature_delimiter\E/, $string)) {
+	my ($id, $values) = split(/\Q$id_delimiter\E/, $feature);
+	$features{$id} = [ split(/\Q$value_delimiter\E/, $values) ];
     }
 
-    return $self;
+    return $class->new(%features);
 }
 
 =head1 Accessors
 
-=head2 $structure->tags(I<%tags>)
+=head2 $structure->get_type()
 
-Sets of returns the tags composing the structure.
+Returns the type of this feature as a hash of types indexed by id.
 
 =cut
 
-sub tags {
-    my $self = shift;
-    if (@_) {
-	my %tags = @_;
-	foreach my $name (keys %tags) {
-	    $tags{$name} = Lingua::Features::Tag->new($name, @{$tags{$name}});
-	}
-	$self->{_tags} = \%tags;
-    } else {
-	return values %{$self->{_tags}};
+sub get_type {
+    my ($self) = @_;
+    return unless ref $self;
+    return $self->{_type};
+}
+
+=head2 $structure->get_features()
+
+Returns the features composing the structure.
+
+=cut
+
+sub get_features {
+    my ($self) = @_;
+    return unless ref $self;
+
+    # sort by type order
+    return
+    cat => $self->{_cat},
+    map {
+	$_ => $self->{_features}->{$_}
+    } keys %{$self->{_type}};
+}
+
+=head2 $structure->set_features(I<%features>)
+
+Sets the features composing the structure.
+
+=cut
+
+sub set_features {
+    my ($self, %features) = @_;
+    return unless ref $self;
+
+    # initialize storage
+    $self->{_features} = {};
+
+    # set features
+    foreach my $id (keys %features) {
+	$self->set_feature($id, $features{$id});
     }
 }
 
-=head2 $structure->tag(I<$id>, I<@values>)
+=head2 $structure->get_feature(I<$id>)
 
-Sets of returns tag I<$id>.
+Returns one of the features composing the structure.
 
 =cut
 
-sub tag {
-    my $self = shift;
-    my $id = shift;
-    if (@_) {
-	my @values = @_;
-	$self->{_tags}->{$id} = Lingua::Features::Tag->new($id, @values);
+sub get_feature {
+    my ($self, $id) = @_;
+    return unless ref $self;
+    return unless $id;
+
+    if ($id eq 'cat') {
+	return $self->{_cat};
     } else {
-	return $self->{_tags}->{$id};
+	return $self->{_features}->{$id};
+    }
+}
+
+=head2 $structure->set_feature(I<$id>, I<$value>)
+
+Sets one of the features composing the structure.
+
+=cut
+
+sub set_feature {
+    my ($self, $id, $values) = @_;
+    return unless ref $self;
+    return unless $id;
+    return if $id eq 'cat';
+
+    my $type = $self->{_type}->{$id};
+    if ($type) {
+	if ($values) {
+	    $values = [ $values ] unless ref $values eq 'ARRAY';
+	    
+	    my %seen;
+	    my @values = 
+	        sort
+		grep { $type->value_name($_) } # allowed in type
+		grep { ! $seen{$_}++ }         # unique
+		@{$values};
+
+	    if (@values) {
+		# having all values from type is the same as no values
+		my $lc = List::Compare->new( {
+		    lists    => [ \@values, [ $type->values() ]],
+		    unsorted => 1,
+		} );
+		@values = () if $lc->is_LequivalentR();
+	    }
+
+	    if (@values) {
+		$self->{_features}->{$id} = \@values;
+	    } else {
+		$self->{_features}->{$id} = undef;
+	    }
+	}
+    } else {
+	carp "No such feature $id in this structure";
     }
 }
 
@@ -109,9 +206,18 @@ Dumps the structure in string format.
 
 sub to_string {
     my ($self) = @_;
-    
-    return
-	join($tag_delimiter, map { $_->to_string() } values %{$self->{_tags}});
+
+    my @in = $self->get_features();
+    my @out;
+
+    while (@in) {
+	my $id     = shift @in;
+	my $values = shift @in;
+	next unless $values;
+	push(@out, $id . $id_delimiter . join($value_delimiter, @{$values}))
+    };
+
+    return join($feature_delimiter, @out);
 }
 
 =head2 $structure->to_xml()
@@ -124,9 +230,80 @@ sub to_xml {
     my ($self) = @_;
 
     my $xml = XML::Generator->new(pretty => 2);
+    my @in = $self->get_features();
+    my @out;
 
-    return $xml->fs(map { $_->to_xml($xml) } values %{$self->{_tags}});
+    while (@in) {
+	my $name     = shift @in;
+	my $values = shift @in;
+	next unless $values;
+	my @values = map( value_to_xml($xml,$_), @{$values});
+	push(@out, $xml->f(
+	    { name => $name },
+	    @values > 1 ?  $xml->vAlt(@values) : $values[0]
+	));
+    }
+
+    return $xml->fs(@out);
 }
+
+sub value_to_xml {
+  my $xml =shift;
+  my $value = shift;
+  return $xml->binary({value=>'true'}) if ($value eq '+');
+  return $xml->binary({value=>'false'}) if ($value eq '-');
+  return $xml->symbol({value=>$value});
+}
+
+=head2 $structure->is_subset(I<$other_structure>)
+
+Return true if current structure is a subset of I<$other_structure>.
+
+=cut
+
+sub is_subset {
+    my ($self, $other) = @_;
+
+    return unless $self && $other;
+
+    my %self_features  = $self->get_features();
+    my %other_features = $other->get_features();
+
+    foreach my $feature (keys %self_features) {
+	# feature doesn't exist in other structure
+	return 0 unless exists $other_features{$feature};
+
+	# no values for this feature
+	next unless $self_features{$feature};
+
+	# no values in other structure feature
+	return 0 unless $other_features{$feature};
+
+	my $lc = List::Compare->new( {
+	    lists    => [$self_features{$feature}, $other_features{$feature}],
+	    unsorted => 1,
+	} );
+
+	return 0 unless $lc->is_LsubsetR();
+    }
+
+    return 1;
+}
+
+=head2 $structure->is_compatible(I<$other_structure>)
+
+Return true if either of current structure and I<$other_structure> is a subset of the other.
+
+=cut
+
+sub is_compatible {
+    my ($self, $other) = @_;
+
+    return unless $self && $other;
+
+    return $self->is_subset($other) || $other->is_subset($self);
+}
+
 
 =head1 COPYRIGHT AND LICENSE
 
