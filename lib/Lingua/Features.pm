@@ -1,4 +1,4 @@
-# $Id: Features.pm,v 1.7 2004/04/13 15:40:12 guillaume Exp $
+# $Id: Features.pm,v 1.9 2004/04/16 13:34:34 guillaume Exp $
 package Lingua::Features;
 
 =head1 NAME
@@ -7,7 +7,7 @@ Lingua::Features - Natural languages features
 
 =head1 VERSION
 
-Version 0.1
+Version 0.2
 
 =head1 DESCRIPTION
 
@@ -40,11 +40,12 @@ use Lingua::Features::Structure;
 use Lingua::Features::Tag;
 use strict;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 our $lib = Lingua::Features::Library->new(
     {
 	cat_type => {
+	    abr     => 'abreviation',
 	    adj     => 'adjective',
 	    adv     => 'adverb',
 	    advneg  => 'negative_adverb',
@@ -60,6 +61,7 @@ our $lib = Lingua::Features::Library->new(
 	    ponct   => 'ponctuation',
 	    pp      => 'pp',
 	    prep    => 'prep',
+	    pref    => 'pref',
 	    s       => 's',
 	    verb    => 'verb',
 	    vm      => 'vm',
