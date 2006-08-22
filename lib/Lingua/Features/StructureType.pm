@@ -1,4 +1,4 @@
-# $Id: StructureType.pm,v 1.5 2004/05/03 12:49:30 guillaume Exp $
+# $Id: StructureType.pm,v 1.7 2006/08/22 14:15:37 rousse Exp $
 package Lingua::Features::StructureType;
 
 =head1 NAME
@@ -24,10 +24,10 @@ Lingua::Features::StructureType->_new(
 Lingua::Features::StructureType->_new(
     id       => 'adj',
     features => [ 
-	type   => 'adj',
-	degree => 'degree',
-	gender => 'gender',
-    	num    => 'num'
+        type   => 'adj',
+        degree => 'degree',
+        gender => 'gender',
+        num    => 'num'
     ]
 );
 
@@ -66,34 +66,34 @@ Lingua::Features::StructureType->_new(
 Lingua::Features::StructureType->_new(
     id       => 'det',
     features => [
-	type    => 'det',
-	pers    => 'pers',
-	gender  => 'gender',
-	num     => 'num', 
-	numposs => 'num',
-	def     => 'def'
+        type    => 'det',
+        pers    => 'pers',
+        gender  => 'gender',
+        num     => 'num', 
+        numposs => 'num',
+        def     => 'def'
     ]
 );
 
 Lingua::Features::StructureType->_new(
     id       => 'noun',
     features => [
-	type   => 'noun',
-	gender => 'gender',
-	num    => 'num', 
-	sem    => 'sem', 
+        type   => 'noun',
+        gender => 'gender',
+        num    => 'num', 
+        sem    => 'sem', 
     ]
 );
 
 Lingua::Features::StructureType->_new(
     id       => 'pron',
     features => [
-	type    => 'pron',
-	pers    => 'pers',
-	gender  => 'gender',
-	num     => 'num',
-	case    => 'case',
-	numposs => 'num'
+        type    => 'pron',
+        pers    => 'pers',
+        gender  => 'gender',
+        num     => 'num',
+        case    => 'case',
+        numposs => 'num'
     ]
 );
 
@@ -120,12 +120,12 @@ Lingua::Features::StructureType->_new(
 Lingua::Features::StructureType->_new(
     id       => 'verb',
     features => [
-	type   => 'verb',
-	mode   => 'mode',
-	tense  => 'tense',
-	pers   => 'pers',
-	num    => 'num',
-	gender => 'gender'
+        type   => 'verb',
+        mode   => 'mode',
+        tense  => 'tense',
+        pers   => 'pers',
+        num    => 'num',
+        gender => 'gender'
     ]
 );
 
@@ -176,22 +176,22 @@ sub _new {
     my ($class, %args) = @_;
 
     my $self = bless {
-	_id => $args{id},
+        _id => $args{id},
     }, $class;
 
     if ($args{base}) {
-	$self->{_base} = $types{$args{base}};
+        $self->{_base} = $types{$args{base}};
     }
 
     if ($args{features}) {
-	$self->{_features} = {};
-	tie %{$self->{_features}}, 'Tie::IxHash';
-	
-	while (@{$args{features}}) {
-	    my $id   = shift @{$args{features}};
-	    my $type = shift @{$args{features}};
-	    $self->{_features}->{$id} = Lingua::Features::FeatureType->type($type);
-	}
+        $self->{_features} = {};
+        tie %{$self->{_features}}, 'Tie::IxHash';
+
+        while (@{$args{features}}) {
+            my $id   = shift @{$args{features}};
+            my $type = shift @{$args{features}};
+            $self->{_features}->{$id} = Lingua::Features::FeatureType->type($type);
+        }
     }
 
     $types{$self->{_id}} = $self;
@@ -260,7 +260,7 @@ sub feature_type {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004, INRIA.
+Copyright (C) 2004-2006, INRIA.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-# $Id: Structure.pm,v 1.13 2004/06/11 11:02:09 rousse Exp $
+# $Id: Structure.pm,v 1.17 2006/08/22 14:15:37 rousse Exp $
 package Lingua::Features::Structure;
 
 =head1 NAME
@@ -12,7 +12,6 @@ use XML::Generator;
 use List::Compare;
 use Lingua::Features::StructureType;
 use Lingua::Features::FeatureType;
-use Data::Dumper;
 use Carp;
 use strict;
 use warnings;
@@ -40,24 +39,24 @@ sub new {
 
     my %seen;
     my @cat = 
-	sort
-	grep { Lingua::Features::StructureType->type($_) } # allowed cat
-	grep { ! $seen{$_}++ }                             # unique
-	@{$features{cat}};
+    sort
+    grep { Lingua::Features::StructureType->type($_) } # allowed cat
+    grep { ! $seen{$_}++ }                             # unique
+    @{$features{cat}};
     croak "no valid type given, aborting" unless @cat;
     @cat = sort @cat;
 
     foreach my $cat (@cat) {
-	my $type = Lingua::Features::StructureType->type($cat);
-	foreach my $feature ($type->features()) {
-	    $type{$feature} = $type->feature_type($feature);
-	}
+        my $type = Lingua::Features::StructureType->type($cat);
+        foreach my $feature ($type->features()) {
+            $type{$feature} = $type->feature_type($feature);
+        }
     }
 
     my $self = bless {
-	_cat      => \@cat,
-	_type     => \%type,
-	_features => {}
+        _cat      => \@cat,
+        _type     => \%type,
+        _features => {}
     }, $class;
 
     $self->set_features(%features) if %features;
@@ -76,8 +75,8 @@ sub from_string {
 
     my %features;
     foreach my $feature (split(/\Q$feature_delimiter\E/, $string)) {
-	my ($id, $values) = split(/\Q$id_delimiter\E/, $feature);
-	$features{$id} = [ split(/\Q$value_delimiter\E/, $values) ];
+        my ($id, $values) = split(/\Q$id_delimiter\E/, $feature);
+        $features{$id} = [ split(/\Q$value_delimiter\E/, $values) ];
     }
 
     return $class->new(%features);
@@ -111,7 +110,7 @@ sub get_features {
     return
     cat => $self->{_cat},
     map {
-	$_ => $self->{_features}->{$_}
+        $_ => $self->{_features}->{$_}
     } keys %{$self->{_type}};
 }
 
@@ -130,7 +129,7 @@ sub set_features {
 
     # set features
     foreach my $id (keys %features) {
-	$self->set_feature($id, $features{$id});
+        $self->set_feature($id, $features{$id});
     }
 }
 
@@ -146,9 +145,9 @@ sub get_feature {
     return unless $id;
 
     if ($id eq 'cat') {
-	return $self->{_cat};
+        return $self->{_cat};
     } else {
-	return $self->{_features}->{$id};
+        return $self->{_features}->{$id};
     }
 }
 
@@ -166,33 +165,33 @@ sub set_feature {
 
     my $type = $self->{_type}->{$id};
     if ($type) {
-	if ($values) {
-	    $values = [ $values ] unless ref $values eq 'ARRAY';
-	    
-	    my %seen;
-	    my @values = 
-	        sort
-		grep { $type->value_name($_) } # allowed in type
-		grep { ! $seen{$_}++ }         # unique
-		@{$values};
+        if ($values) {
+            $values = [ $values ] unless ref $values eq 'ARRAY';
 
-	    if (@values) {
-		# having all values from type is the same as no values
-		my $lc = List::Compare->new( {
-		    lists    => [ \@values, [ $type->values() ]],
-		    unsorted => 1,
-		} );
-		@values = () if $lc->is_LequivalentR();
-	    }
+            my %seen;
+            my @values = 
+            sort
+            grep { $type->value_name($_) } # allowed in type
+            grep { ! $seen{$_}++ }         # unique
+            @{$values};
 
-	    if (@values) {
-		$self->{_features}->{$id} = \@values;
-	    } else {
-		$self->{_features}->{$id} = undef;
-	    }
-	}
+            if (@values) {
+                # having all values from type is the same as no values
+                my $lc = List::Compare->new( {
+                        lists    => [ \@values, [ $type->values() ]],
+                        unsorted => 1,
+                    } );
+                @values = () if $lc->is_LequivalentR();
+            }
+
+            if (@values) {
+                $self->{_features}->{$id} = \@values;
+            } else {
+                $self->{_features}->{$id} = undef;
+            }
+        }
     } else {
-	carp "No such feature $id in this structure";
+        carp "No such feature $id in this structure";
     }
 }
 
@@ -211,10 +210,10 @@ sub to_string {
     my @out;
 
     while (@in) {
-	my $id     = shift @in;
-	my $values = shift @in;
-	next unless $values;
-	push(@out, $id . $id_delimiter . join($value_delimiter, @{$values}))
+        my $id     = shift @in;
+        my $values = shift @in;
+        next unless $values;
+        push(@out, $id . $id_delimiter . join($value_delimiter, @{$values}))
     };
 
     return join($feature_delimiter, @out);
@@ -234,25 +233,24 @@ sub to_xml {
     my @out;
 
     while (@in) {
-	my $name     = shift @in;
-	my $values = shift @in;
-	next unless $values;
-	my @values = map( value_to_xml($xml,$_), @{$values});
-	push(@out, $xml->f(
-	    { name => $name },
-	    @values > 1 ?  $xml->vAlt(@values) : $values[0]
-	));
+        my $name   = shift @in;
+        my $values = shift @in;
+        next unless $values;
+        my @values = map { _value_to_xml($xml, $_) } @{$values};
+        push(@out, $xml->f(
+            { name => $name },
+            @values > 1 ?  $xml->vAlt(@values) : $values[0]
+        ));
     }
 
     return $xml->fs(@out);
 }
 
-sub value_to_xml {
-  my $xml =shift;
-  my $value = shift;
-  return $xml->binary({value=>'true'}) if ($value eq '+');
-  return $xml->binary({value=>'false'}) if ($value eq '-');
-  return $xml->symbol({value=>$value});
+sub _value_to_xml {
+    my ($xml, $value) = @_;
+    return $xml->binary({value => 'true'}) if $value eq '+';
+    return $xml->binary({value => 'false'}) if $value eq '-';
+    return $xml->symbol({value => $value});
 }
 
 =head2 $structure->is_subset(I<$other_structure>)
@@ -270,21 +268,24 @@ sub is_subset {
     my %other_features = $other->get_features();
 
     foreach my $feature (keys %self_features) {
-	# feature doesn't exist in other structure
-	return 0 unless exists $other_features{$feature};
+        # feature doesn't exist in other structure
+        return 0 unless exists $other_features{$feature};
 
-	# no values for this feature
-	next unless $self_features{$feature};
+        # no values for this feature
+        next unless $self_features{$feature};
 
-	# no values in other structure feature
-	return 0 unless $other_features{$feature};
+        # no values in other structure feature
+        return 0 unless $other_features{$feature};
 
-	my $lc = List::Compare->new( {
-	    lists    => [$self_features{$feature}, $other_features{$feature}],
-	    unsorted => 1,
-	} );
+        my $lc = List::Compare->new( {
+                lists    => [
+                    $self_features{$feature},
+                    $other_features{$feature}
+                ],
+                unsorted => 1,
+            } );
 
-	return 0 unless $lc->is_LsubsetR();
+        return 0 unless $lc->is_LsubsetR();
     }
 
     return 1;
@@ -304,10 +305,110 @@ sub is_compatible {
     return $self->is_subset($other) || $other->is_subset($self);
 }
 
+=head2 $structure->has_same_type(I<$other_structure>)
+
+Return true if current structure and I<$other_structure> share the same type, based on cat and type features.
+
+=cut
+
+sub has_same_type {
+    my ($self, $other) = @_;
+
+    return unless $self && $other;
+
+    my %self_features  = $self->get_features();
+    my %other_features = $other->get_features();
+
+    foreach my $feature (qw/cat type/) {
+        my $lc = List::Compare->new( {
+                lists    => [
+                    $self_features{$feature} ? $self_features{$feature} : [],
+                    $other_features{$feature} ? $other_features{$feature} : []
+                ],
+                unsorted => 1,
+            } );
+        return 0 unless $lc->is_LequivalentR();
+    }
+
+    return 1;
+}
+
+=head2 union(I<$structure1>, I<$structure2>)
+
+Return a new structure resulting of the union of I<$structure1> and
+I<$structure2>.
+
+=cut
+
+sub union {
+    my ($class, $struct1, $struct2) = @_;
+
+    my %features;
+    my %features1 = $struct1->get_features();
+    my %features2 = $struct2->get_features();
+
+    my $lc_f = List::Compare->new({
+            lists => [
+                [ keys %features1 ],
+                [ keys %features2 ]
+            ],
+            unsorted => 1,
+        });
+
+    foreach my $feature ($lc_f->get_union()) {
+        my $lc_v = List::Compare->new({
+                lists => [
+                    $features1{$feature} || [],
+                    $features2{$feature} || []
+                ],
+                unsorted => 1,
+            });
+        $features{$feature} = [ $lc_v->get_union() ];
+    }
+
+    return $class->new(%features);
+}
+
+=head2 intersection(I<$structure1>, I<$structure2>)
+
+Return a new structure resulting of the intersection of I<$structure1> and
+I<$structure2>.
+
+=cut
+
+sub intersection {
+    my ($class, $struct1, $struct2) = @_;
+
+    my %features;
+    my %features1 = $struct1->get_features();
+    my %features2 = $struct2->get_features();
+
+    my $lc_f = List::Compare->new({
+            lists => [
+                [ keys %features1 ],
+                [ keys %features2 ]
+            ],
+            unsorted => 1,
+        });
+
+    foreach my $feature ($lc_f->get_intersection()) {
+        my $lc_v = List::Compare->new({
+                lists => [
+                    $features1{$feature} || [],
+                    $features2{$feature} || []
+                ],
+                unsorted => 1,
+            });
+        $features{$feature} = [ $lc_v->get_intersection() ];
+    }
+
+    return $class->new(%features);
+}
+
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004, INRIA.
+Copyright (C) 2004-2006, INRIA.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

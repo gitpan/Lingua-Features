@@ -1,14 +1,9 @@
 #!/usr/bin/perl
-# $Id: base.t,v 1.3 2004/05/03 12:46:27 guillaume Exp $
+# $Id: base.t,v 1.4 2006/08/22 14:10:55 rousse Exp $
 
 use Lingua::Features;
-use Test::More tests => 6;
+use Test::More tests => 4;
 use strict;
-
-BEGIN {
-    use_ok 'Lingua::Features::FeatureType';
-    use_ok 'Lingua::Features::StructureType';
-}
 
 isa_ok(
     Lingua::Features::FeatureType->type('noun'),

@@ -1,4 +1,4 @@
-# $Id: FeatureType.pm,v 1.5 2004/06/09 13:18:17 rousse Exp $
+# $Id: FeatureType.pm,v 1.7 2006/08/22 14:15:37 rousse Exp $
 package Lingua::Features::FeatureType;
 
 =head1 NAME
@@ -18,185 +18,186 @@ my %types;
 Lingua::Features::FeatureType->_new(
     id     => 'det',
     values => {
-	art  => 'article',
-	dem  => 'demonstrative',
-	ind  => 'indefinite',
-	poss => 'possessive',
-	int  => 'interrogative',
-	excl => 'exclusive',
-	part => 'partitive',
-	card => 'cardinal',
+        art  => 'article',
+        dem  => 'demonstrative',
+        ind  => 'indefinite',
+        poss => 'possessive',
+        int  => 'interrogative',
+        excl => 'exclusive',
+        part => 'partitive',
+        card => 'cardinal',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'adj',
     values => {
-	qual => 'qualitative',
-	ord  => 'ordinal',
-	ind  => 'indefi',
-	poss => 'possessive',
-	card => 'cardinal',
-	int  => 'interrogative',
+        qual => 'qualitative',
+        ord  => 'ordinal',
+        ind  => 'indefi',
+        poss => 'possessive',
+        card => 'cardinal',
+        int  => 'interrogative',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'noun',
     values => {
-	common => 'common',
-	proper => 'proper',
-	dist   => 'distinguished',
-	ord    => 'ordinal'
+        common => 'common',
+        proper => 'proper',
+        dist   => 'distinguished',
+        ord    => 'ordinal'
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'pron',
     values => {
-	pers => 'personal',
-	dem  => 'demonstrative',
-	ind  => 'indefini',
-	poss => 'possessive',
-	int  => 'interrogative',
-	rel  => 'relative',
-	cli  => 'clitique',
-	refl => 'reflexive'
+        pers => 'personal',
+        dem  => 'demonstrative',
+        ind  => 'indefini',
+        poss => 'possessive',
+        int  => 'interrogative',
+        rel  => 'relative',
+        cli  => 'clitique',
+        refl => 'reflexive'
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'verb',
     values => {
-	avoir => 'avoir',
-	etre  => 'etre',
-	main  => 'main',
+        avoir => 'avoir',
+        etre  => 'etre',
+        main  => 'main',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'mode',
     values => {
-	ind  => 'indicative',
-	subj => 'subjonctive',
-	imp  => 'imperative',
-	cond => 'conditionnal',
-	inf  => 'infinitive',
-	part => 'participe',
+        ind  => 'indicative',
+        subj => 'subjonctive',
+        imp  => 'imperative',
+        cond => 'conditionnal',
+        inf  => 'infinitive',
+        part => 'participe',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'tense',
     values => {
-	pres => 'present',
-	imp  => 'imparfait',
-	fut  => 'future',
-	past => 'past',
+        pres => 'present',
+        imp  => 'imparfait',
+        fut  => 'future',
+        past => 'past',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'pers',
     values => {
-	1 => '1',
-	2 => '2',
-	3 => '3',
+        1 => '1',
+        2 => '2',
+        3 => '3',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'gender',
     values => {
-	masc => 'masculin',
-	fem  => 'feminin',
+        masc => 'masculin',
+        fem  => 'feminin',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'degree',
     values => {
-	comp => 'comp',
-	pos  => 'pos',
+        comp => 'comp',
+        pos  => 'pos',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'num',
     values => {
-	pl   => 'plural',
-	sing => 'singular',
+        pl   => 'plural',
+        sing => 'singular',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'case',
     values => {
-	acc => 'accusative',
-	dat => 'dative',
-	gen => 'genitive',
-	nom => 'nominative',
-	obl => 'oblique',
-	ref => 'reflexive'
+        acc => 'accusative',
+        dat => 'dative',
+        gen => 'genitive',
+        nom => 'nominative',
+        obl => 'oblique',
+        ref => 'reflexive',
+        loc => 'locative'
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'restr',
     values => {
-	moinshum => 'moinshum',
-	plushum  => 'plushum',
+        moinshum => 'moinshum',
+        plushum  => 'plushum',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'wh',
     values => {
-	plus  => 'plus',
-	minus => 'minus',
-	rel   => 'rel',
+        plus  => 'plus',
+        minus => 'minus',
+        rel   => 'rel',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'bool',
     values => {
-	plus  => 'plus',
-	minus => 'minus',
+        plus  => 'plus',
+        minus => 'minus',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'def',
     values => {
-	def => 'defini',
-	ind => 'indefini',
+        def => 'defini',
+        ind => 'indefini',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'pos',
     values => {
-	pos  => 'pos',
-	comp => 'comp',
+        pos  => 'pos',
+        comp => 'comp',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'res',
     values => {
-	unit => 'unit',
-	exp  => 'expression',
-	for  => 'foreign',
+        unit => 'unit',
+        exp  => 'expression',
+        for  => 'foreign',
     }
 );
 
 Lingua::Features::FeatureType->_new(
     id     => 'sem',
     values => {
-	pl  => 'place',
-	inh => 'inhabitant',
-	ent => 'entity',
+        pl  => 'place',
+        inh => 'inhabitant',
+        ent => 'entity',
     }
 );
 
@@ -228,7 +229,7 @@ sub _new {
     my ($class, %args) = @_;
 
     my $self = bless {
-	_id       => $args{id},
+        _id       => $args{id},
     }, $class;
 
     $self->{_values} = $args{values};
@@ -281,7 +282,7 @@ sub value_name {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004, INRIA.
+Copyright (C) 2004-2006, INRIA.
 
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

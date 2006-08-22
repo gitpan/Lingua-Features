@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: normalization.t,v 1.1 2004/06/09 13:16:28 rousse Exp $
+# $Id: normalization.t,v 1.2 2006/08/22 14:09:23 rousse Exp $
 
 use Lingua::Features;
 use Test::More tests => 7;
